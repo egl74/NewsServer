@@ -2,14 +2,18 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const port = 3000;
+process.env.NODE_ENV = 'production';
 
 app.get('/', (req, res) => {
   id = req.param('id');
-  console.log(id);
+  var file = readFile()
   if (id) {
-    res.send(readFile()[id]);
+    if (file.length <= id) {
+      res.status(404).send('element doesn\'t exist');
+    }
+    res.send(file[id]);
   } else {
-    res.send(readFile());
+    res.send(file);
   }
 });
 
@@ -23,6 +27,9 @@ writeFile = data => {
 
 app.post('/', (req, res) => {
   var newEntry = JSON.parse(req.param('entry'));
+  if (!(newEntry.title && newEntry.description)) {
+    res.status(500).send('invalid format');
+  }
   var data = readFile();
   data.push(newEntry);
   writeFile(data);
@@ -31,6 +38,9 @@ app.post('/', (req, res) => {
 
 app.delete('/', (req, res) => {
   var data = readFile();
+  if (data.length <= id) {
+    res.status(404).send('element doesn\'t exist');
+  }
   data.splice(req.param('id'), 1);
   writeFile(data);
   res.send('entry deleted');
@@ -38,7 +48,13 @@ app.delete('/', (req, res) => {
 
 app.put('/', (req, res) => {
   var newEntry = JSON.parse(req.param('entry'));
+  if (!(newEntry.title && newEntry.description)) {
+    res.status(500).send('invalid format');
+  }
   var data = readFile();
+  if (data.length <= id) {
+    res.status(404).send('element with specified id doesn\'t exist');
+  }
   data[req.param('id')] = newEntry;
   writeFile(data);
   res.send('entry changed');
