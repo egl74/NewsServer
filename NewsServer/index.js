@@ -22,18 +22,26 @@ writeFile = data => {
 }
 
 app.post('/', (req, res) => {
-  var newEntry = req.param('entry');
+  var newEntry = JSON.parse(req.param('entry'));
   var data = readFile();
   data.push(newEntry);
   writeFile(data);
   res.send('entry uploaded');
 });
 
-app.delete('/', (req, res) =>{
+app.delete('/', (req, res) => {
   var data = readFile();
   data.splice(req.param('id'), 1);
   writeFile(data);
   res.send('entry deleted');
+})
+
+app.put('/', (req, res) => {
+  var newEntry = JSON.parse(req.param('entry'));
+  var data = readFile();
+  data[req.param('id')] = newEntry;
+  writeFile(data);
+  res.send('entry changed');
 })
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
