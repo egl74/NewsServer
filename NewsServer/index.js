@@ -18,15 +18,22 @@ readFile = () => {
 }
 
 writeFile = data => {
-  fs.writeFileSync('cnbc-articles.json', data);
+  fs.writeFileSync('cnbc-articles.json', JSON.stringify(data));
 }
 
 app.post('/', (req, res) => {
   var newEntry = req.param('entry');
   var data = readFile();
   data.push(newEntry);
-  writeFile(JSON.stringify(data));
+  writeFile(data);
   res.send('entry uploaded');
 });
+
+app.delete('/', (req, res) =>{
+  var data = readFile();
+  data.splice(req.param('id'), 1);
+  writeFile(data);
+  res.send('entry deleted');
+})
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
