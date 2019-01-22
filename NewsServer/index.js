@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
   var file = readFile()
   if (id) {
     if (file.length <= id) {
-      res.status(404).send('element doesn\'t exist');
+      throw new Error('element doesn\'t exist');
     }
     res.send(file[id]);
     logger.log( {
@@ -47,7 +47,7 @@ writeFile = data => {
   fs.writeFileSync('cnbc-articles.json', JSON.stringify(data));
 }
 
-app.post('/', (req, res) => {
+app.post('/', (req, res, next) => {
   var newEntry = JSON.parse(req.param('entry'));
   if (!(newEntry.title && newEntry.description)) {
     logger.log({
@@ -55,7 +55,7 @@ app.post('/', (req, res) => {
       message: 'invalid format',
       timestamp: new Date()
     });
-    res.status(500).send('invalid format');
+    throw new Error('invalid format');
   }
   var data = readFile();
   data.push(newEntry);
@@ -71,12 +71,12 @@ app.post('/', (req, res) => {
 app.delete('/', (req, res) => {
   var data = readFile();
   if (data.length <= id) {
-    res.status(404).send('element doesn\'t exist');
     logger.log({
       level: 'error',
       message: 'entry not found',
       timestamp: new Date()
     });
+    throw new Error('element doesn\'t exist');
   }
   data.splice(req.param('id'), 1);
   writeFile(data);
@@ -91,22 +91,22 @@ app.delete('/', (req, res) => {
 app.put('/', (req, res) => {
   var newEntry = JSON.parse(req.param('entry'));
   if (!(newEntry.title && newEntry.description)) {
-    res.status(500).send('invalid format');
     logger.log({
       level: 'error',
       message: 'invalid format',
       timestamp: new Date()
     });
+    throw new Error('invalid format');
   }
   var data = readFile();
   var id = req.param('id');
   if (data.length <= id) {
-    res.status(404).send('element with specified id doesn\'t exist');
     logger.log({
       level: 'error',
       message: 'element doesn\'t exist',
       timestamp: new Date()
     });
+    throw new Error('element with specified id doesn\'t exist');
   }
   data[id] = newEntry;
   writeFile(data);
@@ -119,3 +119,8 @@ app.put('/', (req, res) => {
 })
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+app.use(function (err, req, res, next) {
+  console.error(err.stack);
+  res.status(500).send(err.message);
+});
