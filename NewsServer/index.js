@@ -15,6 +15,16 @@ const logger = createLogger({
     new transports.File({ filename: 'combined.log' })
   ]
 });
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://127.0.0.1:27017/news');
+const newsSchema = new mongoose.Schema({
+  author: String,
+  title: String,
+  description: String,
+  url: String,
+  urlToImage: String,
+  publishedAt: String,
+});
 
 app.get('/', (req, res) => {
   id = req.param('id');
