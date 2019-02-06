@@ -1,4 +1,15 @@
 const express = require('express');
+const passport = require('passport');
+const strategy = require('passport-facebook').Strategy;
+passport.use(new Strategy({
+  clientID: process.env['FACEBOOK_CLIENT_ID'],
+  clientSecret: process.env['FACEBOOK_CLIENT_SECRET'],
+  callbackURL: '/return'
+  },
+  function (accessToken, refreshToken, profile, cb) {
+    return cb(null, profile);
+  })
+);
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, label, prettyPrint } = format;
 const app = express();
@@ -14,6 +25,7 @@ const logger = createLogger({
 });
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://127.0.0.1:27017/news');
+
 const newsSchema = new mongoose.Schema({
   author: String,
   title: String,
