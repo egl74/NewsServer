@@ -1,6 +1,7 @@
+require('dotenv').load();
 const express = require('express');
 const passport = require('passport');
-const strategy = require('passport-facebook').Strategy;
+const Strategy = require('passport-facebook').Strategy;
 passport.use(new Strategy({
   clientID: process.env['FACEBOOK_CLIENT_ID'],
   clientSecret: process.env['FACEBOOK_CLIENT_SECRET'],
@@ -25,8 +26,11 @@ const logger = createLogger({
 });
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://127.0.0.1:27017/news');
+const ObjectId = mongoose.Schema.Types.ObjectId;
+// const db = mongoose.connection;
 
 const newsSchema = new mongoose.Schema({
+  // _id: ObjectId,
   author: String,
   title: String,
   description: String,
@@ -34,6 +38,17 @@ const newsSchema = new mongoose.Schema({
   urlToImage: String,
   publishedAt: String,
 });
+const NewsModel = mongoose.model('newsmodel', newsSchema, 'newsentries');
+
+// const ent = new NewsModel({
+//   author: "BBC News",
+//   title: "Hit US sitcom Modern Family to end",
+//   "description": "The series, which stars Ed O’Neill and Sofia Vergara, has won 22 Emmy Awards during its run.",
+//   "url": "http://www.bbc.co.uk/news/entertainment-arts-47148138",
+//   "urlToImage": "https://ichef.bbci.co.uk/news/1024/branded_news/749A/production/_105505892_mediaitem105501071.jpg",
+//   "publishedAt": "2019-02-06T15:48:42Z"
+// });
+// ent.save();
 
 app.use(bodyParser.json());
 
@@ -46,24 +61,26 @@ this.writeFile = data => {
 };
 
 app.get('/', (req, res) => {
-  var id = req.param('id'),
-    file = this.readFile();
+  const id = req.params['id'];
   if (id) {
+    const entry = NewsModel.find({ _id: id });
     if (file.length <= id) {
       throw new Error('element doesn\'t exist');
     }
-    res.send(file[id]);
+    res.send(entry);
     logger.log({
       level: 'info',
-      message: 'file returned',
+      message: 'entry returned',
       timestamp: new Date()
     });
   } else {
-    res.send(file);
-    logger.log({
-      level: 'info',
-      message: 'file returned',
-      timestamp: new Date()
+    NewsModel.find({}, (err, news) => {      
+      res.send(news);
+      logger.log({
+        level: 'info',
+        message: 'file returned',
+        timestamp: new Date()
+      })
     });
   }
 });
