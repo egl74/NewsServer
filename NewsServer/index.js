@@ -1,16 +1,19 @@
 require('dotenv').load();
 const express = require('express');
 const passport = require('passport');
+const session = require('express-session');
 const Strategy = require('passport-facebook').Strategy;
 passport.use(new Strategy({
-  clientID: process.env['FACEBOOK_CLIENT_ID'],
-  clientSecret: process.env['FACEBOOK_CLIENT_SECRET'],
-  callbackURL: '/return'
-},
-function (accessToken, refreshToken, profile, cb) {
-  return cb(null, profile);
-})
-);
+    clientID: process.env['FACEBOOK_CLIENT_ID'],
+    clientSecret: process.env['FACEBOOK_CLIENT_SECRET'],
+    callbackURL: '/auth/facebook/callback'
+  },
+  function (accessToken, refreshToken, profile, done) {
+    User.upsertFbUser(accessToken, refreshToken, profile, function (err, user) {
+      return done(err, user);
+    });
+  }
+));
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, label, prettyPrint } = format;
 const app = express();
@@ -26,7 +29,6 @@ const logger = createLogger({
 });
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://127.0.0.1:27017/news');
-const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const newsSchema = new mongoose.Schema({
   author: String,
@@ -36,11 +38,62 @@ const newsSchema = new mongoose.Schema({
   urlToImage: String,
   publishedAt: String,
 });
+const UserSchema = new mongoose.Schema({
+  email: {
+        type: String, required: true,
+        trim: true, unique: true,
+        match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+  },
+  facebookProvider: {
+        type: {
+              id: String,
+              token: String
+        },
+        select: false
+  }
+});
 const NewsModel = mongoose.model('newsmodel', newsSchema, 'newsentries');
+
+UserSchema.statics.upsertFbUser = function (accessToken, refreshToken, profile, cb) {
+  const that = this;
+  console.log(accessToken);
+  return this.findOne({
+    'facebookProvider.id': profile.id
+  }, function (err, user) {
+    if (!user) {
+      console.log(profile);
+      var newUser = new that({
+        email: profile.emails[0].value,
+        facebookProvider: {
+          id: profile.id,
+          token: accessToken
+        }
+      });
+
+      newUser.save(function (error, savedUser) {
+        if (error) {
+          console.log(error);
+        }
+        return cb(error, savedUser);
+      });
+    } else {
+      return cb(err, user);
+    }
+  });
+};
+
+const User = mongoose.model('User', UserSchema);
 
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
+isLoggedIn = (req, res, next) => {
+  if (req.isAuthenticated())
+      return next();
+
+  res.sendStatus(401);
+}
+
+app.get('/', isLoggedIn, (req, res) => {
   const id = req.query.id;
   if (id) {
     NewsModel.findOne({ _id: id }, (err, entry) => {
@@ -66,7 +119,7 @@ app.get('/', (req, res) => {
   }
 });
 
-app.post('/', (req, res) => {
+app.post('/', isLoggedIn, (req, res) => {
   const newEntry = req.body;
   if (!(newEntry.title && newEntry.description)) {
     logger.log({
@@ -86,7 +139,7 @@ app.post('/', (req, res) => {
   });
 });
 
-app.delete('/', (req, res) => {
+app.delete('/', isLoggedIn, (req, res) => {
   const id = req.query.id;
   NewsModel.deleteOne({ _id: id }, (err) => {
     if (err) {
@@ -107,7 +160,7 @@ app.delete('/', (req, res) => {
   });
 });
 
-app.put('/', (req, res) => {
+app.put('/', isLoggedIn, (req, res) => {
   var newEntry = req.body;
   if (!(newEntry.title && newEntry.description)) {
     logger.log({
@@ -137,9 +190,21 @@ app.put('/', (req, res) => {
   });  
 });
 
+app.get("/auth/facebook", passport.authenticate("facebook", { scope : "email" }));
+
+app.get("/auth/facebook/callback",
+    passport.authenticate("facebook", {
+        successRedirect : "/",
+        failureRedirect : "/500",
+        
+}));
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
 app.use(function(err, req, res) {
-  console.error(err.stack);
+  console.error(err);
   res.status(500).send(err.message);
 });
+
+app.use(session);
+app.use(passport.initialize());
