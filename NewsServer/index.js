@@ -52,27 +52,29 @@ const NewsModel = mongoose.model('newsmodel', newsSchema, 'newsentries');
 
 app.use(bodyParser.json());
 
-this.readFile = () => {
-  return JSON.parse(fs.readFileSync('cnbc-articles.json'));
-};
+// this.readFile = () => {
+//   return JSON.parse(fs.readFileSync('cnbc-articles.json'));
+// };
 
-this.writeFile = data => {
-  fs.writeFileSync('cnbc-articles.json', JSON.stringify(data));
-};
+// this.writeFile = data => {
+//   fs.writeFileSync('cnbc-articles.json', JSON.stringify(data));
+// };
 
 app.get('/', (req, res) => {
-  const id = req.params['id'];
+  const id = req.query.id;
   if (id) {
-    const entry = NewsModel.find({ _id: id });
-    if (file.length <= id) {
-      throw new Error('element doesn\'t exist');
-    }
-    res.send(entry);
-    logger.log({
-      level: 'info',
-      message: 'entry returned',
-      timestamp: new Date()
-    });
+    NewsModel.find({ _id: id }, (err, entry) => {
+      if (entry.length <= id) {
+        throw new Error('element doesn\'t exist');
+      }
+      console.log(entry);
+      res.send(entry);
+      logger.log({
+        level: 'info',
+        message: 'entry returned',
+        timestamp: new Date()
+      });
+    });    
   } else {
     NewsModel.find({}, (err, news) => {      
       res.send(news);
@@ -86,7 +88,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/', (req, res) => {
-  var newEntry = req.body;
+  const newEntry = req.body;
   if (!(newEntry.title && newEntry.description)) {
     logger.log({
       level: 'error',
@@ -95,9 +97,9 @@ app.post('/', (req, res) => {
     });
     throw new Error('invalid format');
   }
-  var data = this.readFile();
-  data.push(newEntry);
-  this.writeFile(data);
+  //var data = this.readFile();
+  const entry = new NewsModel(newEntry);
+  entry.save();
   res.send('entry uploaded');
   logger.log({
     level: 'info',
