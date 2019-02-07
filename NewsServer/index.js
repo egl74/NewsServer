@@ -95,14 +95,15 @@ app.delete('/', (req, res) => {
         message: 'entry not found',
         timestamp: new Date()
       });
-      throw new Error('element doesn\'t exist');
+      throw new Error(err.message);
     } else {
-    res.send('entry deleted');
-    logger.log({
-      level: 'info',
-      message: 'entry deleted',
-      timestamp: new Date()
-    })}
+      res.send('entry deleted');
+      logger.log({
+        level: 'info',
+        message: 'entry deleted',
+        timestamp: new Date()
+      });
+    }
   });
 });
 
@@ -116,24 +117,24 @@ app.put('/', (req, res) => {
     });
     throw new Error('invalid format');
   }
-  var data = this.readFile();
-  var id = req.param('id');
-  if (data.length <= id) {
-    logger.log({
-      level: 'error',
-      message: 'element doesn\'t exist',
-      timestamp: new Date()
-    });
-    throw new Error('element with specified id doesn\'t exist');
-  }
-  data[id] = newEntry;
-  this.writeFile(data);
-  res.send('entry changed');
-  logger.log({
-    level: 'info',
-    message: 'entry returned',
-    timestamp: new Date()
-  });
+  var id = req.query.id;
+  NewsModel.updateOne({ _id: id}, newEntry, (err) => {
+    if (err) {
+      logger.log({
+        level: 'error',
+        message: 'element doesn\'t exist',
+        timestamp: new Date()
+      });
+      throw new Error('element with specified id doesn\'t exist');
+    } else {
+      res.send('entry changed');
+      logger.log({
+        level: 'info',
+        message: 'entry changed',
+        timestamp: new Date()
+      });
+    }
+  });  
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

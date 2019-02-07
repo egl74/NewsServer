@@ -16,7 +16,7 @@
     "eslint": "^5.12.1"
   },
   "scripts": {
-    "lint": "eslint *.js",
+    "lint": "eslint *.js --fix",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
