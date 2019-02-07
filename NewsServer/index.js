@@ -6,10 +6,10 @@ passport.use(new Strategy({
   clientID: process.env['FACEBOOK_CLIENT_ID'],
   clientSecret: process.env['FACEBOOK_CLIENT_SECRET'],
   callbackURL: '/return'
-  },
-  function (accessToken, refreshToken, profile, cb) {
-    return cb(null, profile);
-  })
+},
+function (accessToken, refreshToken, profile, cb) {
+  return cb(null, profile);
+})
 );
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, label, prettyPrint } = format;
@@ -27,10 +27,8 @@ const logger = createLogger({
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://127.0.0.1:27017/news');
 const ObjectId = mongoose.Schema.Types.ObjectId;
-// const db = mongoose.connection;
 
 const newsSchema = new mongoose.Schema({
-  // _id: ObjectId,
   author: String,
   title: String,
   description: String,
@@ -40,34 +38,15 @@ const newsSchema = new mongoose.Schema({
 });
 const NewsModel = mongoose.model('newsmodel', newsSchema, 'newsentries');
 
-// const ent = new NewsModel({
-//   author: "BBC News",
-//   title: "Hit US sitcom Modern Family to end",
-//   "description": "The series, which stars Ed O’Neill and Sofia Vergara, has won 22 Emmy Awards during its run.",
-//   "url": "http://www.bbc.co.uk/news/entertainment-arts-47148138",
-//   "urlToImage": "https://ichef.bbci.co.uk/news/1024/branded_news/749A/production/_105505892_mediaitem105501071.jpg",
-//   "publishedAt": "2019-02-06T15:48:42Z"
-// });
-// ent.save();
-
 app.use(bodyParser.json());
-
-// this.readFile = () => {
-//   return JSON.parse(fs.readFileSync('cnbc-articles.json'));
-// };
-
-// this.writeFile = data => {
-//   fs.writeFileSync('cnbc-articles.json', JSON.stringify(data));
-// };
 
 app.get('/', (req, res) => {
   const id = req.query.id;
   if (id) {
-    NewsModel.find({ _id: id }, (err, entry) => {
-      if (entry.length <= id) {
-        throw new Error('element doesn\'t exist');
+    NewsModel.findOne({ _id: id }, (err, entry) => {
+      if (err || entry.length <= id) {
+        throw new Error(err.message);
       }
-      console.log(entry);
       res.send(entry);
       logger.log({
         level: 'info',
@@ -82,7 +61,7 @@ app.get('/', (req, res) => {
         level: 'info',
         message: 'file returned',
         timestamp: new Date()
-      })
+      });
     });
   }
 });
@@ -97,7 +76,6 @@ app.post('/', (req, res) => {
     });
     throw new Error('invalid format');
   }
-  //var data = this.readFile();
   const entry = new NewsModel(newEntry);
   entry.save();
   res.send('entry uploaded');
@@ -109,23 +87,22 @@ app.post('/', (req, res) => {
 });
 
 app.delete('/', (req, res) => {
-  var data = this.readFile(),
-    id = req.param('id');
-  if (data.length <= id) {
+  const id = req.query.id;
+  NewsModel.deleteOne({ _id: id }, (err) => {
+    if (err) {
+      logger.log({
+        level: 'error',
+        message: 'entry not found',
+        timestamp: new Date()
+      });
+      throw new Error('element doesn\'t exist');
+    } else {
+    res.send('entry deleted');
     logger.log({
-      level: 'error',
-      message: 'entry not found',
+      level: 'info',
+      message: 'entry deleted',
       timestamp: new Date()
-    });
-    throw new Error('element doesn\'t exist');
-  }
-  data.splice(id, 1);
-  this.writeFile(data);
-  res.send('entry deleted');
-  logger.log({
-    level: 'info',
-    message: 'entry deleted',
-    timestamp: new Date()
+    })}
   });
 });
 
