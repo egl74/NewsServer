@@ -6,6 +6,8 @@ import { HeaderComponent } from './header/header.component';
 import { NewsListComponent } from './news-list/news-list.component';
 import { NewsEntityComponent } from './news-entity/news-entity.component';
 import { NewsEntityInfoComponent } from './news-entity-info/news-entity-info.component';
+import { AppRoutingModule } from './app-routing.module';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -16,6 +18,8 @@ import { NewsEntityInfoComponent } from './news-entity-info/news-entity-info.com
     NewsEntityInfoComponent
   ],
   imports: [
+    AppRoutingModule,
+    RouterModule,
     BrowserModule
   ],
   providers: [],
