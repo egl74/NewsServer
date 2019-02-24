@@ -7,6 +7,8 @@ const fs = require('fs');
 const Strategy = require('passport-facebook').Strategy;
 const mongoose = require('mongoose');
 const app = express();
+var cors = require('cors');
+app.use(cors());
 const MongoStore = require('express-mongoose-store')(session, mongoose);
 passport.use('facebook', new Strategy({
     clientID: process.env['FACEBOOK_CLIENT_ID'],
@@ -85,6 +87,7 @@ UserSchema.statics.upsertFbUser = function (accessToken, refreshToken, profile, 
     'facebookProvider.id': profile.id
   }, function (err, user) {
     if (!user) {
+      console.log('profile');
       console.log(profile);
       var newUser = new that({
         email: profile.emails[0].value,
@@ -111,16 +114,12 @@ const User = mongoose.model('User', UserSchema);
 app.use(bodyParser.json());
 
 isLoggedIn = (req, res, next) => {
-  if (req.isAuthenticated())
-    return next();
+  // if (req.isAuthenticated())
+  //   return next();
 
-  res.sendStatus(401);
+  // res.redirect('/auth/facebook');
+  return next();
 }
-
-app.get('/#_=_', (req, res) => {
-  console.log('hash')
-  res.redirect('/');
-})
 
 app.get('/', isLoggedIn, (req, res) => {
   const id = req.query.id;

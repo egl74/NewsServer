@@ -8,6 +8,7 @@ import { NewsEntityComponent } from './news-entity/news-entity.component';
 import { NewsEntityInfoComponent } from './news-entity-info/news-entity-info.component';
 import { AppRoutingModule } from './app-routing.module';
 import { RouterModule } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { RouterModule } from '@angular/router';
   imports: [
     AppRoutingModule,
     RouterModule,
+    HttpClientModule,
     BrowserModule
   ],
   providers: [],

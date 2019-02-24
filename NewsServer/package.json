@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "connect-mongo": "^2.0.3",
+    "cors": "^2.8.5",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "express-mongoose-store": "^1.0.7",

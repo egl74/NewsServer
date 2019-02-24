@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from "@angular/core";
-import { NewsEntityServiceService } from '../news-entity-service.service';
+import { NewsService } from '../news.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -11,9 +11,10 @@ export class NewsEntityInfoComponent implements OnInit {
   @Input() id: any;
   newsEntity = {};
 
-  constructor(private newsEntityServiceService: NewsEntityServiceService,
+  constructor(private newsService: NewsService,
     private activatedRoute: ActivatedRoute) {
-    this.newsEntity = this.newsEntityServiceService.getById(this.activatedRoute.snapshot.params['id']);
+    this.newsService.getById(this.activatedRoute.snapshot.params['id'])
+      .subscribe(data => this.newsEntity = data);
   }
 
   ngOnInit() {}
