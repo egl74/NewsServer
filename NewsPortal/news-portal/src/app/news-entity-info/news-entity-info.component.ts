@@ -8,7 +8,6 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ["./news-entity-info.component.css"]
 })
 export class NewsEntityInfoComponent implements OnInit {
-  @Input() id: any;
   newsEntity = {};
 
   constructor(private newsService: NewsService,

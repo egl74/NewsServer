@@ -9,6 +9,7 @@ import { NewsEntityInfoComponent } from './news-entity-info/news-entity-info.com
 import { AppRoutingModule } from './app-routing.module';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { HttpClientModule } from '@angular/common/http';
     AppRoutingModule,
     RouterModule,
     HttpClientModule,
+    BsDropdownModule.forRoot(),
     BrowserModule
   ],
   providers: [],
