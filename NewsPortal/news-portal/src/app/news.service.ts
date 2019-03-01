@@ -32,4 +32,8 @@ export class NewsService {
         this._sourceChanged.next(data['articles']);
       });
   }
+
+  public saveNewsEntity(newsEntity: NewsModel) {
+    return this.httpClient.post<any>(`${environment.apiUrl}`, newsEntity);
+  }
 }

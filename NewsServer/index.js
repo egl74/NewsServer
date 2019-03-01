@@ -136,7 +136,10 @@ app.get('/', isLoggedIn, (req, res) => {
       });
     });    
   } else {
-    NewsModel.find({}, (err, news) => {      
+    NewsModel.find({}, (err, news) => {
+      news.sort((x, y) => 
+        y.publishedAt.localeCompare(x.publishedAt)
+      );
       res.send(news);
       logger.log({
         level: 'info',
@@ -159,7 +162,7 @@ app.post('/', isLoggedIn, (req, res) => {
   }
   const entry = new NewsModel(newEntry);
   entry.save();
-  res.send('entry uploaded');
+  res.send({message: 'entry uploaded', newsEntity: entry});
   logger.log({
     level: 'info',
     message: 'entry uploaded',
