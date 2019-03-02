@@ -181,7 +181,7 @@ app.delete('/', isLoggedIn, (req, res) => {
       });
       throw new Error(err.message);
     } else {
-      res.send('entry deleted');
+      res.send({message: 'entry deleted'});
       logger.log({
         level: 'info',
         message: 'entry deleted',
@@ -211,7 +211,7 @@ app.put('/', isLoggedIn, (req, res) => {
       });
       throw new Error('element with specified id doesn\'t exist');
     } else {
-      res.send('entry changed');
+      res.send({message: 'entry changed', newsEntity: newEntry});
       logger.log({
         level: 'info',
         message: 'entry changed',

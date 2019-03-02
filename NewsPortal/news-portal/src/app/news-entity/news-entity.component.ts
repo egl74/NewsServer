@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectorRef } from "@angular/core";
+import { Component, OnInit, Input } from "@angular/core";
 import { Router } from "@angular/router";
 import { NewsModel } from "../news-model";
 import { NewsService } from "../news.service";
@@ -17,6 +17,10 @@ export class NewsEntityComponent implements OnInit {
 
   edit(id: any) {
     this.router.navigate([`/newsEntity/${id}/edit`]);
+  }
+
+  delete(id: any) {
+    this.newsService.delete(id).subscribe(() => this.newsService.updateNewsList());
   }
 
   saveToDb(newsEntity: NewsModel) {

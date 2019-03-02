@@ -1,1 +1,30 @@
-{{newsEntity | json}}
+<form [formGroup]="form">
+  <div class="form-group">
+    <label for="headlineInput">Headline</label>
+    <input type="text" class="form-control" id="headlineInput" placeholder="Enter headline..." formControlName="title">
+  </div>
+  <div class="form-group">
+    <label for="descriptionInput">Description</label>
+    <textarea type="text" class="form-control" id="descriptionInput" placeholder="Enter description..." formControlName="description"></textarea>
+  </div>
+  <div class="form-group">
+    <label for="authorInput">Author</label>
+    <input type="text" class="form-control" id="authorInput" placeholder="Enter author..." formControlName="author">
+  </div>
+  <div class="form-group">
+    <label for="urlInput">URL to Article</label>
+    <input type="url" class="form-control" id="urlInput" placeholder="Enter link..." formControlName="url">
+  </div>
+  <div class="form-group">
+    <label for="pictureUrlInput">URL to Article Picture</label>
+    <input type="url" class="form-control" id="pictureUrlInput" placeholder="Enter link to article picture, e.g. uploaded into cloud..."
+      formControlName="urlToImage">
+  </div>
+
+  <div class="form-row">
+    <button type="button" class="btn btn-secondary" (click)="save()">{{saveButtonText}}</button>
+    <div *ngIf="showDeleteButton">
+      <button type="button" class="btn btn-danger" (click)="delete()">Delete</button>
+    </div>
+  </div>
+</form>

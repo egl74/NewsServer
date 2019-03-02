@@ -9,10 +9,10 @@ import { Observable, BehaviorSubject } from 'rxjs';
 })
 export class NewsService {
   private readonly newsAggregatorApiUrl = 'https://newsapi.org/v1';
-  private _sourceChanged : BehaviorSubject<any> = new BehaviorSubject([]);
-  sourceChanged: Observable<any> = this._sourceChanged.asObservable();
+  private _listRefreshed: BehaviorSubject<any> = new BehaviorSubject([]);
+  listRefreshed: Observable<any> = this._listRefreshed.asObservable();
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {}
 
   public getAll() {
     return this.httpClient.get<NewsModel[]>(`${environment.apiUrl}`);
@@ -23,17 +23,42 @@ export class NewsService {
   }
 
   public getNewsSources() {
-    return this.httpClient.get<string[]>(`${this.newsAggregatorApiUrl}/sources?apiKey=${environment.newsApiKey}`);
+    return this.httpClient.get<string[]>(
+      `${this.newsAggregatorApiUrl}/sources?apiKey=${environment.newsApiKey}`
+    );
   }
 
-  public changeNewsSource(sourceId: string) {
-    this.httpClient.get(`${this.newsAggregatorApiUrl}/articles?source=${sourceId}&apiKey=${environment.newsApiKey}`)
-      .subscribe(data => {
-        this._sourceChanged.next(data['articles']);
+  public updateNewsList(sourceId: string | null = null) {
+    if (sourceId) {
+      this.httpClient
+        .get(
+          `${this.newsAggregatorApiUrl}/articles?source=${sourceId}&apiKey=${
+            environment.newsApiKey
+          }`
+        )
+        .subscribe(data => {
+          this._listRefreshed.next(data['articles']);
+        });
+    } else {
+      this.getAll().subscribe(data => {
+        this._listRefreshed.next(data);
       });
+    }
   }
 
   public saveNewsEntity(newsEntity: NewsModel) {
-    return this.httpClient.post<any>(`${environment.apiUrl}`, newsEntity);
+    if (newsEntity._id) {
+      return this.httpClient.put<any>(
+        `${environment.apiUrl}?id=${newsEntity._id}`,
+        newsEntity
+      );
+    } else {
+      newsEntity.publishedAt = newsEntity.publishedAt || new Date();
+      return this.httpClient.post<any>(`${environment.apiUrl}`, newsEntity);
+    }
+  }
+
+  public delete(id) {
+    return this.httpClient.delete(`${environment.apiUrl}?id=${id}`);
   }
 }

@@ -10,6 +10,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     RouterModule,
     HttpClientModule,
     BsDropdownModule.forRoot(),
+    ReactiveFormsModule,
     BrowserModule
   ],
   providers: [],

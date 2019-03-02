@@ -1,33 +1,31 @@
-<form>
-  <div class='form-group'>
-    <div class='row'>
-      <div class='column col-md-3'>
-        <img src={{newsEntity.urlToImage}} width='100%'>
-      </div>
-      <div class='column col-md-5'>
-        <div class='row'>
-          <div class='form-group'>
-            <p>{{newsEntity.title}}</p>
-          </div>
-        </div>
-        <div class='row'>
-          <p>{{newsEntity.description}}</p>
+<div class='form-group'>
+  <div class='row'>
+    <div class='column col-md-3'>
+      <img src={{newsEntity.urlToImage}} width='100%'>
+    </div>
+    <div class='column col-md-5'>
+      <div class='row'>
+        <div class='form-group'>
+          <p>{{newsEntity.title}}</p>
         </div>
       </div>
-      <div class='column col date'>
-        <p>{{newsEntity.publishedAt}}</p>
+      <div class='row'>
+        <p>{{newsEntity.description}}</p>
       </div>
-      <div class='column col-md-1'>
+    </div>
+    <div class='column col date'>
+      <p>{{newsEntity.publishedAt}}</p>
+    </div>
+    <div class='column col-md-1'>
+      <div *ngIf="newsEntity._id">
         <div class="btn-group-vertical">
-          <div *ngIf="newsEntity._id">
-            <button type="button" class="btn btn-light" (click)="edit(newsEntity._id)">Edit</button>
-            <button type="button" class="btn btn-danger">Delete</button>
-          </div>
-          <div *ngIf="!newsEntity._id">
-            <button type="button" class="btn btn-light" (click)="saveToDb(newsEntity)">Add</button>
-          </div>
+          <button type="button" class="btn btn-light" (click)="edit(newsEntity._id)">Edit</button>
+          <button type="button" class="btn btn-danger" (click)="delete(newsEntity._id)">Delete</button>
         </div>
+      </div>
+      <div *ngIf="!newsEntity._id">
+        <button type="button" class="btn btn-light" (click)="saveToDb(newsEntity)">Add</button>
       </div>
     </div>
   </div>
-</form>
+</div>
