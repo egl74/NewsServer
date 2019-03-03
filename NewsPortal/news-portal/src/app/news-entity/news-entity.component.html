@@ -17,13 +17,13 @@
       <p>{{newsEntity.publishedAt}}</p>
     </div>
     <div class='column col-md-1'>
-      <div *ngIf="newsEntity._id">
+      <div *ngIf="newsEntity && newsEntity._id">
         <div class="btn-group-vertical">
           <button type="button" class="btn btn-light" (click)="edit(newsEntity._id)">Edit</button>
           <button type="button" class="btn btn-danger" (click)="delete(newsEntity._id)">Delete</button>
         </div>
       </div>
-      <div *ngIf="!newsEntity._id">
+      <div *ngIf="!newsEntity && !newsEntity._id">
         <button type="button" class="btn btn-light" (click)="saveToDb(newsEntity)">Add</button>
       </div>
     </div>

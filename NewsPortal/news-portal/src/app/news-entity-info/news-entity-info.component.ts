@@ -11,8 +11,7 @@ import { NewsModel } from '../news-model';
 })
 export class NewsEntityInfoComponent implements OnInit {
   newsEntity: NewsModel;
-  private readonly urlPattern =
-    '^https?:\/\/(.*)';
+  private readonly urlPattern = '^https?://(.*)';
   form: FormGroup = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.minLength(5)]),
     description: new FormControl('', [Validators.required]),
@@ -39,19 +38,7 @@ export class NewsEntityInfoComponent implements OnInit {
     private newsService: NewsService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) {
-    this.newsService
-      .getById(this.activatedRoute.snapshot.params['id'])
-      .subscribe(data => {
-        this.newsEntity = data;
-
-        this.form.controls['title'].setValue(data.title);
-        this.form.controls['description'].setValue(data.description);
-        this.form.controls['author'].setValue(data.author);
-        this.form.controls['url'].setValue(data.url);
-        this.form.controls['urlToImage'].setValue(data.urlToImage);
-      });
-  }
+  ) {}
 
   get title() {
     return this.form.get('title');
@@ -73,7 +60,19 @@ export class NewsEntityInfoComponent implements OnInit {
     return this.form.get('urlToImage');
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.newsService
+      .getById(this.activatedRoute.snapshot.params['id'])
+      .subscribe(data => {
+        this.newsEntity = data;
+
+        this.form.controls['title'].setValue(data.title);
+        this.form.controls['description'].setValue(data.description);
+        this.form.controls['author'].setValue(data.author);
+        this.form.controls['url'].setValue(data.url);
+        this.form.controls['urlToImage'].setValue(data.urlToImage);
+      });
+  }
 
   save() {
     if (!this.form.invalid) {
