@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NewsService } from '../news.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NewsModel } from '../news-model';
@@ -11,12 +11,20 @@ import { NewsModel } from '../news-model';
 })
 export class NewsEntityInfoComponent implements OnInit {
   newsEntity: NewsModel;
+  private readonly urlPattern =
+    '^https?:\/\/(.*)';
   form: FormGroup = new FormGroup({
-    title: new FormControl(''),
-    description: new FormControl(''),
-    author: new FormControl(''),
-    url: new FormControl(''),
-    urlToImage: new FormControl('')
+    title: new FormControl('', [Validators.required, Validators.minLength(5)]),
+    description: new FormControl('', [Validators.required]),
+    author: new FormControl('', [Validators.required]),
+    url: new FormControl('', [
+      Validators.required,
+      Validators.pattern(this.urlPattern)
+    ]),
+    urlToImage: new FormControl('', [
+      Validators.required,
+      Validators.pattern(this.urlPattern)
+    ])
   });
 
   get saveButtonText(): string {
@@ -45,13 +53,35 @@ export class NewsEntityInfoComponent implements OnInit {
       });
   }
 
+  get title() {
+    return this.form.get('title');
+  }
+
+  get description() {
+    return this.form.get('description');
+  }
+
+  get author() {
+    return this.form.get('author');
+  }
+
+  get url() {
+    return this.form.get('url');
+  }
+
+  get urlToImage() {
+    return this.form.get('urlToImage');
+  }
+
   ngOnInit() {}
 
   save() {
-    Object.assign(this.newsEntity, this.form.getRawValue());
-    this.newsService
-      .saveNewsEntity(this.newsEntity)
-      .subscribe(() => this.router.navigate(['/']));
+    if (!this.form.invalid) {
+      Object.assign(this.newsEntity, this.form.getRawValue());
+      this.newsService
+        .saveNewsEntity(this.newsEntity)
+        .subscribe(() => this.router.navigate(['/']));
+    }
   }
 
   delete() {
